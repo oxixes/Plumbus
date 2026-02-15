@@ -1,4 +1,5 @@
 /*  Copyright 2023 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2023 Ash Logan <ash@heyquark.com>
     Copyright 2019 Maschell
 
@@ -20,7 +21,7 @@
 #include "olv_urls.h"
 #include "utils/logger.h"
 #include "utils/replace_mem.h"
-#include "inkay_config.h"
+#include "plumbus_config.h"
 
 #include <vector>
 #include <function_patcher/function_patching.h>
@@ -63,27 +64,27 @@ DECL_FUNCTION(int, FSOpenFile_eShop, FSClient *client, FSCmdBlock *block, char *
     const char *initialOma = "vol/content/initial.oma";
 
     if (!Config::connect_to_network) {
-        DEBUG_FUNCTION_LINE_VERBOSE("Inkay: eShop patches skipped.");
+        DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: eShop patches skipped.");
         return real_FSOpenFile_eShop(client, block, path, mode, handle, error);
     }
 
     if (strcmp(initialOma, path) == 0) {
-        //below is a hacky (yet functional!) way to get Inkay to redirect URLs from the Miiverse applet
+        //below is a hacky (yet functional!) way to get Plumbus to redirect URLs from the Miiverse applet
         //we do it when loading this file since it should only load once, preventing massive lag spikes as it searches all of MEM2 xD
 
-        DEBUG_FUNCTION_LINE_VERBOSE("Inkay: hewwo eShop!\n");
+        DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: hewwo eShop!\n");
 
         if (!replace(0x10000000, 0x10000000, wave_original, sizeof(wave_original), wave_new, sizeof(wave_new)))
-            DEBUG_FUNCTION_LINE_VERBOSE("Inkay: We didn't find the url /)>~<(\\");
+            DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: We didn't find the url /)>~<(\\");
 
         if (!replace(0x10000000, 0x10000000, (const char *)&original_entry, sizeof(original_entry), (const char *)&new_entry, sizeof(new_entry)))
-            DEBUG_FUNCTION_LINE_VERBOSE("Inkay: We didn't find the whitelist /)>~<(\\");
+            DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: We didn't find the whitelist /)>~<(\\");
 
     // Check for root CA file and take note of its handle
     } else if (strcmp("vol/content/browser/rootca.pem", path) == 0) {
         int ret = real_FSOpenFile_eShop(client, block, path, mode, handle, error);
         rootca_pem_handle = *handle;
-        DEBUG_FUNCTION_LINE_VERBOSE("Inkay: Found eShop CA, replacing...");
+        DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: Found eShop CA, replacing...");
         return ret;
     }
 
@@ -93,7 +94,7 @@ DECL_FUNCTION(int, FSOpenFile_eShop, FSClient *client, FSCmdBlock *block, char *
 DECL_FUNCTION(FSStatus, FSReadFile_eShop, FSClient *client, FSCmdBlock *block, uint8_t *buffer, uint32_t size, uint32_t count,
               FSFileHandle handle, uint32_t unk1, uint32_t flags) {
     if (size != 1) {
-        DEBUG_FUNCTION_LINE("Inkay: eShop CA replacement failed!");
+        DEBUG_FUNCTION_LINE("Plumbus: eShop CA replacement failed!");
     }
 
     if (rootca_pem_handle && *rootca_pem_handle == handle) {
@@ -118,7 +119,7 @@ void patchEshop() {
     auto add_patch = [](function_replacement_data_t repl, const char *name) {
         PatchedFunctionHandle handle = 0;
         if (FunctionPatcher_AddFunctionPatch(&repl, &handle, nullptr) != FUNCTION_PATCHER_RESULT_SUCCESS) {
-            DEBUG_FUNCTION_LINE("Inkay/eShop: Failed to patch %s!", name);
+            DEBUG_FUNCTION_LINE("Plumbus/eShop: Failed to patch %s!", name);
         }
         eshop_patches.push_back(handle);
     };

@@ -1,4 +1,5 @@
 /*  Copyright 2024 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,15 +17,15 @@
 
 #pragma once
 
-enum class InkayStatus {
+enum class PlumbusStatus {
     Uninitialized, ///< The module isn't initialized
     Nintendo,      ///< The module is initialized but hasn't applied any patches
-    Pretendo,      ///< The module is initialized and has applied the Pretendo patches
+    Custom,        ///< The module is initialized and has applied the Custom patches
 
     Error = -1     ///< Failed to retrieve the module status
 };
 
-void Inkay_Initialize(bool apply_patches);
-void Inkay_Finalize();
-InkayStatus Inkay_GetStatus();
-void Inkay_SetPluginRunning();
+void Plumbus_Initialize(bool apply_patches);
+void Plumbus_Finalize();
+PlumbusStatus Plumbus_GetStatus();
+void Plumbus_SetPluginRunning();

@@ -5,6 +5,7 @@
 #include <whb/log_module.h>
 #include <whb/log_cafe.h>
 #include <whb/log_udp.h>
+#include "plumbus_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,15 +15,15 @@ extern "C" {
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILENAME_X__)
 
 #define OSFATAL_FUNCTION_LINE(FMT, ARGS...)do { \
-    OSFatal_printf("[(P)             Inkay][%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
+    OSFatal_printf("[(P)           " PROJECT_DISPLAY_NAME "][%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
     } while (0)
 
 #define DEBUG_FUNCTION_LINE(FMT, ARGS...)do { \
-    WHBLogPrintf("[(P)             Inkay][%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
+    WHBLogPrintf("[(P)           " PROJECT_DISPLAY_NAME "][%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
     } while (0);
 
 #define DEBUG_FUNCTION_LINE_WRITE(FMT, ARGS...)do { \
-    WHBLogWritef("[(P)             Inkay][%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
+    WHBLogWritef("[(P)           " PROJECT_DISPLAY_NAME "][%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
     } while (0);
 
 #ifdef DEBUG

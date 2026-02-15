@@ -1,4 +1,5 @@
 /*  Copyright 2023 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2023 Ash Logan <ash@heyquark.com>
     Copyright 2019 Maschell
 

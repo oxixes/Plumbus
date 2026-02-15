@@ -7,6 +7,9 @@ $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/de
 endif
 
 TOPDIR ?= $(CURDIR)
+THIS_MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+PROJECT_CONFIG ?= $(THIS_MAKEFILE_DIR)/project_config.mk
+include $(PROJECT_CONFIG)
 
 include $(DEVKITPRO)/wums/share/wums_rules
 
@@ -19,11 +22,12 @@ WUT_ROOT := $(DEVKITPRO)/wut
 # DATA is a list of directories containing data files
 # INCLUDES is a list of directories containing header files
 #-------------------------------------------------------------------------------
-TARGET		:=	Inkay-pretendo
+TARGET		:=	$(PROJECT_NAME)
 BUILD		:=	build
 SOURCES		:=	src src/patches src/utils src/ext/inih common
 DATA		:=	data
 INCLUDES	:=	src src/ext/inih src/lang common
+CA_PEM_SOURCE_ABS := $(abspath $(if $(filter /%,$(CA_PEM_SOURCE)),$(CA_PEM_SOURCE),$(THIS_MAKEFILE_DIR)/$(CA_PEM_SOURCE)))
 
 #-------------------------------------------------------------------------------
 # options for code generation
@@ -33,6 +37,9 @@ CFLAGS	:=	-Wall -ffunction-sections -fdata-sections \
 			$(MACHDEP) $(OPT)
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__
+CFLAGS	+=	-DPROJECT_DISPLAY_NAME=\"$(PROJECT_NAME)\" \
+			-DPROJECT_MODULE_NAME=\"$(PROJECT_MODULE_NAME)\" \
+			-DREPLACEMENT_DOMAIN=\"$(REPLACEMENT_DOMAIN)\"
 
 CXXFLAGS	:= $(CFLAGS) -std=c++20
 
@@ -70,7 +77,7 @@ export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+BINFILES	:=	ca.pem $(filter-out ca.pem,$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*))))
 
 #-------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -105,6 +112,7 @@ all: $(BUILD)
 
 $(BUILD):
 	@$(shell [ ! -d $(BUILD) ] && mkdir -p $(BUILD))
+	@cp "$(CA_PEM_SOURCE_ABS)" "$(BUILD)/ca.pem"
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	@$(MAKE) --no-print-directory -C $(CURDIR)/plugin -f $(CURDIR)/plugin/Makefile
 	mkdir -p dist/

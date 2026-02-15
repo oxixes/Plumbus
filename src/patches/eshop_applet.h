@@ -1,4 +1,5 @@
 /*  Copyright 2024 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

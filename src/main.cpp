@@ -1,4 +1,5 @@
 /*  Copyright 2022 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2022 Ash Logan <ash@heyquark.com>
     Copyright 2019 Maschell
 
@@ -22,6 +23,7 @@
 #include "Notification.h"
 #include "patches/olv_urls.h"
 #include "patches/game_matchmaking.h"
+#include "plumbus_config.h"
 
 #include <wums.h>
 
@@ -39,16 +41,16 @@
 
 #include "ca_pem.h"
 
-#define INKAY_VERSION "v3.0.0"
+#define PLUMBUS_VERSION "v3.0.0"
 
 /**
     Mandatory plugin information.
     If not set correctly, the loader will refuse to use the plugin.
 **/
-WUMS_MODULE_EXPORT_NAME("inkay");
-WUMS_MODULE_DESCRIPTION("Pretendo Network Patcher");
-WUMS_MODULE_VERSION(INKAY_VERSION);
-WUMS_MODULE_AUTHOR("Pretendo contributors");
+WUMS_MODULE_EXPORT_NAME(PROJECT_MODULE_NAME);
+WUMS_MODULE_DESCRIPTION("Custom Network Patcher");
+WUMS_MODULE_VERSION(PLUMBUS_VERSION);
+WUMS_MODULE_AUTHOR("Pretendo contributors & Oxixes");
 WUMS_MODULE_LICENSE("GPLv3");
 
 WUMS_DEPENDS_ON(homebrew_functionpatcher);
@@ -100,38 +102,38 @@ static const char *get_nintendo_network_message() {
     return get_config_strings(get_system_language()).using_nintendo_network.data();
 }
 
-static const char *get_pretendo_message() {
-    // TL note: "Pretendo Network" is also a proper noun - though "Pretendo" alone can refer to us as a project
+static const char *get_custom_message() {
+    // TL note: "Custom Network" is a proper noun in this context.
     // TL note: "Using" instead of "Connected" is deliberate - we don't know if a successful connection exists, we are
     // only specifying what we'll *attempt* to connect to
-    return get_config_strings(get_system_language()).using_pretendo_network.data();
+    return get_config_strings(get_system_language()).using_custom_network.data();
 }
 
-static void Inkay_SetPluginRunning() {
+static void Plumbus_SetPluginRunning() {
     Config::plugin_is_loaded = true;
 }
 
-static InkayStatus Inkay_GetStatus() {
+static PlumbusStatus Plumbus_GetStatus() {
     if (!Config::initialized)
-        return InkayStatus::Uninitialized;
+        return PlumbusStatus::Uninitialized;
 
     if (Config::connect_to_network) {
-        return InkayStatus::Pretendo;
+        return PlumbusStatus::Custom;
     } else {
-        return InkayStatus::Nintendo;
+        return PlumbusStatus::Nintendo;
     }
 }
 
-static void Inkay_Initialize(bool apply_patches) {
+static void Plumbus_Initialize(bool apply_patches) {
     if (Config::initialized)
         return;
 
     if (Config::block_initialize) {
-        ShowNotification("Cannot load Inkay while the system is running. Please restart the console");
+        ShowNotification("Cannot load " PROJECT_DISPLAY_NAME " while the system is running. Please restart the console");
         return;
     }
 
-    // if using pretendo then (try to) apply the ssl patches
+    // if using custom network then (try to) apply the ssl patches
     if (apply_patches) {
         Config::connect_to_network = true;
 
@@ -148,12 +150,12 @@ static void Inkay_Initialize(bool apply_patches) {
         // IOS-NIM-BOSS GlobalPolicyList->state: poking this forces a refresh after we changed the url
         Mocha_IOSUKernelWrite32(0xE24B3D90, 4);
 
-        DEBUG_FUNCTION_LINE_VERBOSE("Pretendo URL and NoSSL patches applied successfully.");
+        DEBUG_FUNCTION_LINE_VERBOSE("Custom URL and NoSSL patches applied successfully.");
 
-        ShowNotification(get_pretendo_message());
+        ShowNotification(get_custom_message());
         Config::initialized = true;
     } else {
-        DEBUG_FUNCTION_LINE_VERBOSE("Pretendo URL and NoSSL patches skipped.");
+        DEBUG_FUNCTION_LINE_VERBOSE("Custom URL and NoSSL patches skipped.");
 
         ShowNotification(get_nintendo_network_message());
         Config::initialized = true;
@@ -201,7 +203,7 @@ WUMS_DEINITIALIZE() {
 }
 
 WUMS_APPLICATION_STARTS() {
-    DEBUG_FUNCTION_LINE_VERBOSE("Inkay " INKAY_VERSION " starting up...\n");
+    DEBUG_FUNCTION_LINE_VERBOSE(PROJECT_DISPLAY_NAME " " PLUMBUS_VERSION " starting up...\n");
 
     // Reset plugin loaded flag
     Config::plugin_is_loaded = false;
@@ -215,14 +217,14 @@ WUMS_ALL_APPLICATION_STARTS_DONE() {
     hotpatchAccountSettings();
 
     if (Config::initialized && !Config::plugin_is_loaded) {
-        DEBUG_FUNCTION_LINE("Inkay is running but the plugin got unloaded");
+        DEBUG_FUNCTION_LINE(PROJECT_DISPLAY_NAME " is running but the plugin got unloaded");
         if (!Config::block_initialize) {
-            ShowNotification("Inkay module is still running. Please restart the console");
+            ShowNotification(PROJECT_DISPLAY_NAME " module is still running. Please restart the console");
         }
         Config::shown_warning = true;
     } else if (!Config::initialized && !Config::shown_warning) {
-        DEBUG_FUNCTION_LINE("Inkay module not initialized");
-        ShowNotification("Inkay module was not initialized. Ensure you have the Inkay plugin loaded");
+        DEBUG_FUNCTION_LINE(PROJECT_DISPLAY_NAME " module not initialized");
+        ShowNotification(PROJECT_DISPLAY_NAME " module was not initialized. Ensure you have the " PROJECT_DISPLAY_NAME " plugin loaded");
         Config::shown_warning = true;
     }
     if (!Config::initialized) {
@@ -233,6 +235,6 @@ WUMS_ALL_APPLICATION_STARTS_DONE() {
 WUMS_APPLICATION_ENDS() {
 }
 
-WUMS_EXPORT_FUNCTION(Inkay_Initialize);
-WUMS_EXPORT_FUNCTION(Inkay_GetStatus);
-WUMS_EXPORT_FUNCTION(Inkay_SetPluginRunning);
+WUMS_EXPORT_FUNCTION(Plumbus_Initialize);
+WUMS_EXPORT_FUNCTION(Plumbus_GetStatus);
+WUMS_EXPORT_FUNCTION(Plumbus_SetPluginRunning);

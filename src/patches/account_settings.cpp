@@ -1,4 +1,5 @@
 /*  Copyright 2023 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2023 Jemma Poffinbarger <jemma@jemsoftware.dev>
     Copyright 2023 Ash Logan <ash@heyquark.com>
     Copyright 2019 Maschell
@@ -21,7 +22,7 @@
 #include "olv_urls.h"
 #include "utils/logger.h"
 #include "utils/replace_mem.h"
-#include "inkay_config.h"
+#include "plumbus_config.h"
 
 #include <function_patcher/function_patching.h>
 
@@ -79,7 +80,7 @@ DECL_FUNCTION(int, FSOpenFile_accSettings, FSClient *client, FSCmdBlock *block, 
     }
 
     if (!Config::connect_to_network) {
-        DEBUG_FUNCTION_LINE_VERBOSE("Inkay: account settings patches skipped.");
+        DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: account settings patches skipped.");
         return real_FSOpenFile_accSettings(client, block, path, mode, handle, error);
     }
 
@@ -87,7 +88,7 @@ DECL_FUNCTION(int, FSOpenFile_accSettings, FSClient *client, FSCmdBlock *block, 
     if (strcmp("vol/content/browser/rootca.pem", path) == 0) {
         int ret = real_FSOpenFile_accSettings(client, block, path, mode, handle, error);
         rootca_pem_handle = *handle;
-        DEBUG_FUNCTION_LINE_VERBOSE("Inkay: Found account settings CA, replacing...");
+        DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: Found account settings CA, replacing...");
         return ret;
     }
     return real_FSOpenFile_accSettings(client, block, path, mode, handle, error);
@@ -99,7 +100,7 @@ DECL_FUNCTION(FSStatus, FSReadFile_accSettings, FSClient *client, FSCmdBlock *bl
         return real_FSReadFile_accSettings(client, block, buffer, size, count, handle, unk1, flags);
     }
     if (size != 1) {
-        DEBUG_FUNCTION_LINE("Inkay: account settings CA replacement failed!");
+        DEBUG_FUNCTION_LINE("Plumbus: account settings CA replacement failed!");
     }
 
     if (rootca_pem_handle && *rootca_pem_handle == handle) {
@@ -125,7 +126,7 @@ bool patchAccountSettings() {
     auto add_patch = [](function_replacement_data_t repl, const char *name) {
         PatchedFunctionHandle handle = 0;
         if (FunctionPatcher_AddFunctionPatch(&repl, &handle, nullptr) != FUNCTION_PATCHER_RESULT_SUCCESS) {
-            DEBUG_FUNCTION_LINE("Inkay/Account: Failed to patch %s!", name);
+            DEBUG_FUNCTION_LINE("Plumbus/Account: Failed to patch %s!", name);
         }
         account_patches.push_back(handle);
     };
@@ -143,19 +144,19 @@ bool hotpatchAccountSettings() {
     }
 
     if (!Config::connect_to_network) {
-        DEBUG_FUNCTION_LINE_VERBOSE("Inkay: account settings patches skipped.");
+        DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: account settings patches skipped.");
         return false;
     }
 
-    DEBUG_FUNCTION_LINE_VERBOSE("Inkay: hewwo account settings!\n");
+    DEBUG_FUNCTION_LINE_VERBOSE("Plumbus: hewwo account settings!\n");
 
     if (!replace(0x10000000, 0x10000000, wave_original, sizeof(wave_original), wave_new, sizeof(wave_new))) {
-        DEBUG_FUNCTION_LINE("Inkay: We didn't find the url /)>~<(\\");
+        DEBUG_FUNCTION_LINE("Plumbus: We didn't find the url /)>~<(\\");
         return false;
     }
 
     if (!replace(0x10000000, 0x10000000, (const char *)&original_entry, sizeof(original_entry), (const char *)&new_entry, sizeof(new_entry))) {
-        DEBUG_FUNCTION_LINE("Inkay: We didn't find the whitelist /)>~<(\\");
+        DEBUG_FUNCTION_LINE("Plumbus: We didn't find the whitelist /)>~<(\\");
         return false;
     }
 

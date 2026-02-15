@@ -1,4 +1,5 @@
 /*  Copyright 2024 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,12 +21,13 @@
 #include "utils/logger.h"
 #include "sysconfig.h"
 #include "lang.h"
+#include "plumbus_config.h"
 
 #include <coreinit/dynload.h>
 
 static OSDynLoad_Module module;
 static void (*moduleInitialize)(bool) = nullptr;
-static InkayStatus (*moduleGetStatus)() = nullptr;
+static PlumbusStatus (*moduleGetStatus)() = nullptr;
 static void (*moduleSetPluginRunning)() = nullptr;
 
 static const char *get_module_not_found_message() {
@@ -36,18 +38,18 @@ static const char *get_module_init_not_found_message() {
     return get_config_strings(get_system_language()).module_init_not_found.data();
 }
 
-void Inkay_Initialize(bool apply_patches) {
+void Plumbus_Initialize(bool apply_patches) {
     if (module) {
         return;
     }
 
-    if (OSDynLoad_Acquire("inkay", &module) != OS_DYNLOAD_OK) {
+    if (OSDynLoad_Acquire(PROJECT_MODULE_NAME, &module) != OS_DYNLOAD_OK) {
         DEBUG_FUNCTION_LINE("Failed to acquire module");
         ShowNotification(get_module_not_found_message());
         return;
     }
 
-    if (OSDynLoad_FindExport(module, OS_DYNLOAD_EXPORT_FUNC, "Inkay_Initialize", reinterpret_cast<void * *>(&moduleInitialize)) != OS_DYNLOAD_OK) {
+    if (OSDynLoad_FindExport(module, OS_DYNLOAD_EXPORT_FUNC, "Plumbus_Initialize", reinterpret_cast<void * *>(&moduleInitialize)) != OS_DYNLOAD_OK) {
         DEBUG_FUNCTION_LINE("Failed to find initialization function");
         ShowNotification(get_module_init_not_found_message());
         OSDynLoad_Release(module);
@@ -57,7 +59,7 @@ void Inkay_Initialize(bool apply_patches) {
     moduleInitialize(apply_patches);
 }
 
-void Inkay_Finalize() {
+void Plumbus_Finalize() {
     if (module) {
         OSDynLoad_Release(module);
         moduleInitialize = nullptr;
@@ -66,26 +68,26 @@ void Inkay_Finalize() {
     }
 }
 
-InkayStatus Inkay_GetStatus() {
+PlumbusStatus Plumbus_GetStatus() {
     if (!module) {
-        return InkayStatus::Error;
+        return PlumbusStatus::Error;
     }
 
-    if (!moduleGetStatus && OSDynLoad_FindExport(module, OS_DYNLOAD_EXPORT_FUNC, "Inkay_GetStatus", reinterpret_cast<void * *>(&moduleGetStatus)) != OS_DYNLOAD_OK) {
+    if (!moduleGetStatus && OSDynLoad_FindExport(module, OS_DYNLOAD_EXPORT_FUNC, "Plumbus_GetStatus", reinterpret_cast<void * *>(&moduleGetStatus)) != OS_DYNLOAD_OK) {
         DEBUG_FUNCTION_LINE("Failed to find status function");
-        return InkayStatus::Error;
+        return PlumbusStatus::Error;
     }
 
     return moduleGetStatus();
 }
 
-void Inkay_SetPluginRunning() {
+void Plumbus_SetPluginRunning() {
     if (!module) {
         return;
     }
 
-    if (!moduleSetPluginRunning && OSDynLoad_FindExport(module, OS_DYNLOAD_EXPORT_FUNC, "Inkay_SetPluginRunning", reinterpret_cast<void * *>(&moduleSetPluginRunning)) != OS_DYNLOAD_OK) {
-        DEBUG_FUNCTION_LINE("Failed to find \"Inkay_SetPluginRunning\" function");
+    if (!moduleSetPluginRunning && OSDynLoad_FindExport(module, OS_DYNLOAD_EXPORT_FUNC, "Plumbus_SetPluginRunning", reinterpret_cast<void * *>(&moduleSetPluginRunning)) != OS_DYNLOAD_OK) {
+        DEBUG_FUNCTION_LINE("Failed to find \"Plumbus_SetPluginRunning\" function");
         return;
     }
 

@@ -1,8 +1,6 @@
-# Inkay - Aroma patches for Pretendo
+# Plumbus - Aroma patches for Custom Network
 
-[![Pretendo network logo](https://github.com/PretendoNetwork/website/raw/master/public/assets/images/opengraph/opengraph-image.png)](https://pretendo.network)
-
-Inkay is an Aroma/WUPS plugin that patches various Nintendo Network URLs on a Wii U to use Pretendo Network instead. It also (for the time being) bypasses SSL verification in most cases. It redirects Nintendo Network in:
+Plumbus is an Aroma/WUPS plugin that patches various Nintendo Network URLs on a Wii U to use a Custom Network instead. It also (for the time being) bypasses SSL verification in most cases. It redirects Nintendo Network in:
 
 - IOSU-side connections (Friends, SpotPass, accounts etc.)
 - Account Settings
@@ -11,27 +9,35 @@ Inkay is an Aroma/WUPS plugin that patches various Nintendo Network URLs on a Wi
 - Miiverse (in-game)
 - Miiverse applet
 
-Inkay also includes game-specific patches to add extra features:
+Plumbus also includes game-specific patches to add extra features:
 - Modpack-specific matchmaking for global, regional rooms (by simulating extra DLC) - **Mario Kart 8**
 - P2P port override for better connection stability (if you port forward) - **Minecraft: Wii U Edition**, **Mario Kart 8**, **Splatoon**
 
 ## Requirements
-Inkay is only supported on the release version of Aroma configured for autoboot/coldboot. Other configurations (specifically lacking coldboot) may cause issues with SpotPass.
+Plumbus is only supported on the release version of Aroma configured for autoboot/coldboot. Other configurations (specifically lacking coldboot) may cause issues with SpotPass.
 
 ## Safety
-Inkay's patches are all temporary, and only applied in-memory without modifying your console. The SSL patch, while also temporary, could reduce the overall security of your console while active - this is because it no longer checks if a server is verified. However, this does not apply to the Internet Browser, where SSL still works as expected.
+Plumbus's patches are all temporary, and only applied in-memory without modifying your console. The SSL patch, while also temporary, could reduce the overall security of your console while active - this is because it no longer checks if a server is verified. However, this does not apply to the Internet Browser, where SSL still works as expected.
+
+## Configuration
+Edit `project_config.mk` to customize:
+- Project name/module name
+- Replacement domain (`REPLACEMENT_DOMAIN`)
+- CA bundle source path (`CA_PEM_SOURCE`)
+
+`REPLACEMENT_DOMAIN` must be no longer than `nintendo.net` (12 chars), because URLs are replaced in-place.
 
 ## Compiling - Docker
-Inkay's dependencies and build tooling can be handled as a container, which is recommended for WUPS plugins. Using `docker` or `podman`:
+Plumbus's dependencies and build tooling can be handled as a container, which is recommended for WUPS plugins. Using `docker` or `podman`:
 ```shell
-docker build -t inkay .
-docker run --rm -v $(pwd):/app inkay make
+docker build -t plumbus .
+docker run --rm -v $(pwd):/app plumbus make
 # you can replace "make" with other commands - e.g. make clean
 ```
 If using `podman` on SELinux systems (like Fedora Linux), you might need to use `$(pwd):/app:Z` instead of `$(pwd):/app`.
 
 ## Compiling - System
-Inkay has the following dependencies aside from devkitPPC and wut:
+Plumbus has the following dependencies aside from devkitPPC and wut:
 - [WiiUPluginSystem](https://github.com/wiiu-env/WiiUPluginSystem)
 - [WiiUModuleSystem](https://github.com/wiiu-env/WiiUModuleSystem)
 - [libmocha](https://github.com/wiiu-env/libmocha)
@@ -39,7 +45,16 @@ Inkay has the following dependencies aside from devkitPPC and wut:
 - [libnotifications](https://github.com/wiiu-env/libnotifications/)
 - [libfunctionpatcher](https://github.com/wiiu-env/libfunctionpatcher)
 
-Each of these should be `make install`-able. After that, you can compile Inkay with `make`.
+Each of these should be `make install`-able. After that, you can compile Plumbus with `make`.
 
-## TODO
-See [Issues](https://github.com/PretendoNetwork/Inkay/issues).
+## Project Origin
+Plumbus is based on Pretendo's Inkay project:
+- Original project: https://github.com/PretendoNetwork/Inkay
+
+This fork includes these key changes:
+- Renamed from Inkay to Plumbus across build outputs, module/plugin metadata, and UI strings
+- Replaced Pretendo-specific naming with generic Custom/Custom Network wording
+- Added a single-file customization point (`project_config.mk`) for name/module/domain/CA path
+- Made CA replacement easier by selecting the PEM source via config
+- Added compile-time validation for replacement domain length
+- Switched hardcoded network patch URLs to use configurable `REPLACEMENT_DOMAIN`

@@ -1,4 +1,5 @@
 /*  Copyright 2022 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2022 Ash Logan <ash@heyquark.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -21,6 +22,7 @@
 #include "utils/logger.h"
 #include "sysconfig.h"
 #include "lang.h"
+#include "plumbus_config.h"
 
 #include <wups.h>
 #include <wups/storage.h>
@@ -205,7 +207,7 @@ void Config::Init() {
     WUPSConfigAPIStatus cres;
 
     // Init the config api
-    WUPSConfigAPIOptionsV1 configOptions = { .name = "Inkay" };
+    WUPSConfigAPIOptionsV1 configOptions = { .name = PROJECT_DISPLAY_NAME };
     cres = WUPSConfigAPI_Init(configOptions, ConfigMenuOpenedCallback, ConfigMenuClosedCallback);
     if (cres != WUPSCONFIG_API_RESULT_SUCCESS) return (void)report_error(cres);
 

@@ -1,4 +1,5 @@
 /*  Copyright 2024 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2024 Ash Logan <ash@heyquark.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -19,7 +20,7 @@
 
 #include "config.h"
 #include "utils/logger.h"
-#include "inkay_config.h"
+#include "plumbus_config.h"
 #include <array>
 #include <vector>
 #include <function_patcher/function_patching.h>
@@ -57,7 +58,7 @@ void patchDNS() {
     auto add_patch = [](function_replacement_data_t repl, const char *name) {
         PatchedFunctionHandle handle = 0;
         if (FunctionPatcher_AddFunctionPatch(&repl, &handle, nullptr) != FUNCTION_PATCHER_RESULT_SUCCESS) {
-            DEBUG_FUNCTION_LINE("Inkay/DNS: Failed to patch %s!", name);
+            DEBUG_FUNCTION_LINE("Plumbus/DNS: Failed to patch %s!", name);
         }
         dns_patches.push_back(handle);
     };

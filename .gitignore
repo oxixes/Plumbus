@@ -10,3 +10,4 @@
 certs/
 *.lst
 inkay_config.local.h
+plumbus_config.local.h

@@ -7,6 +7,9 @@ $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/de
 endif
 
 TOPDIR ?= $(CURDIR)
+THIS_MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+PROJECT_CONFIG ?= $(THIS_MAKEFILE_DIR)/../project_config.mk
+include $(PROJECT_CONFIG)
 
 include $(DEVKITPRO)/wups/share/wups_rules
 
@@ -19,7 +22,7 @@ WUMS_ROOT := $(DEVKITPRO)/wums
 # DATA is a list of directories containing data files
 # INCLUDES is a list of directories containing header files
 #-------------------------------------------------------------------------------
-TARGET		:=	Inkay-pretendo
+TARGET		:=	$(PROJECT_NAME)
 BUILD		:=	build
 SOURCES		:=	src src/utils ../common
 DATA		:=	data
@@ -34,6 +37,9 @@ CFLAGS	:=	-Wall -ffunction-sections -fdata-sections \
 			$(MACHDEP) $(OPT)
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -D__WUPS__
+CFLAGS	+=	-DPROJECT_DISPLAY_NAME=\"$(PROJECT_NAME)\" \
+			-DPROJECT_MODULE_NAME=\"$(PROJECT_MODULE_NAME)\" \
+			-DREPLACEMENT_DOMAIN=\"$(REPLACEMENT_DOMAIN)\"
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -DDEBUG -g

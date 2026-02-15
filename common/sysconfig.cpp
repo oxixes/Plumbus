@@ -1,4 +1,5 @@
 /*  Copyright 2024 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2024 Ash Logan <ash@heyquark.com>
     Copyright 2020-2022 V10lator <v10lator@myway.de>
     Copyright 2022 Xpl0itU <DaThinkingChair@protonmail.com>

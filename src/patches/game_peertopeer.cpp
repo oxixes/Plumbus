@@ -1,4 +1,5 @@
 /*  Copyright 2024 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2024 Ash Logan <ash@heyquark.com>
 
     Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby

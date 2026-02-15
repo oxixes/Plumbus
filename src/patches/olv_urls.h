@@ -1,4 +1,5 @@
 /*  Copyright 2023 Pretendo Network contributors <pretendo.network>
+    Copyright 2026 Oxixes <oxixes>
     Copyright 2023 Ash Logan <ash@heyquark.com>
     Copyright 2019 Maschell
 
@@ -15,7 +16,7 @@
 #pragma once
 
 #include <cstdlib>
-#include "inkay_config.h"
+#include "plumbus_config.h"
 
 constexpr char original_url[] = "discovery.olv.nintendo.net/v1/endpoint";
 constexpr char new_url[] =      "discovery.olv." NETWORK_BASEURL "/v1/endpoint";
